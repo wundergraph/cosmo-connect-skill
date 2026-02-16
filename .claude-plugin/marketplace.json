@@ -1,0 +1,21 @@
+{
+  "name": "wundergraph-cosmo-connect",
+  "owner": {
+    "name": "WunderGraph"
+  },
+  "metadata": {
+    "description": "WunderGraph Cosmo Connect skill for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "cosmo-connect",
+      "description": "Create and modify APIs using WunderGraph Cosmo Connect. Covers gRPC plugin development (Go/TypeScript), standalone gRPC services, schema-to-proto workflows, CLI commands, local router setup, graph.yaml composition, field resolvers, batching, federation entities, and deployment.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/cosmo-connect"
+      ]
+    }
+  ]
+}
