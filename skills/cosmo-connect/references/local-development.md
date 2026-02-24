@@ -123,6 +123,10 @@ wgc router compose -i ./graph.yaml -o ./config.json
 ROUTER_CONFIG_PATH=./config.json go run ./cmd/router/main.go
 ```
 
+### 7. Update README with Example Queries
+
+After composing, update the README's "Example Queries" section to reflect the current schema. See [SKILL.md#example-queries-in-readme](../SKILL.md) for format and rules.
+
 ## Plugin Mode (Step-by-Step)
 
 Steps 1-3 are identical to standalone. Differences start at step 4.
@@ -176,6 +180,10 @@ PLUGINS_ENABLED=true \
 PLUGINS_PATH=./plugins \
 go run ./cmd/router/main.go
 ```
+
+### 8. Update README with Example Queries
+
+After composing, update the README's "Example Queries" section. See [SKILL.md#example-queries-in-readme](../SKILL.md) for format and rules.
 
 ## graph.yaml Subgraph Shapes
 
