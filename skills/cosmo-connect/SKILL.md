@@ -31,7 +31,9 @@ Cosmo Connect lets you use GraphQL Federation without running GraphQL servers. D
 2. Generate Protobuf + Mapping (wgc CLI)
 3. Implement gRPC logic
 4. Configure Router
-5. Deploy and test
+5. Compose supergraph (wgc router compose)
+6. Update README with example queries (see "Example Queries in README" section)
+7. Deploy and test
 ```
 
 ### Plugin Workflow
@@ -210,6 +212,72 @@ plugins:
 Supported: Query, Mutation, Entity Lookups (single/multiple/compound keys), Scalar/Complex args, Enums, Interfaces, Unions, Recursive types, Nested objects, Lists, Entity definitions, Key directives, External fields, Field resolvers (with batching).
 
 Not yet supported: Nested key entity lookups, @requires, Subscriptions, Nullable list items (protobuf constraint).
+
+## Example Queries in README
+
+**After composing the supergraph schema** (`wgc router compose`), always add example queries to the project's README. This lets users immediately copy-paste queries into the playground.
+
+### When to generate
+
+After every `wgc router compose` that succeeds, check the README for an "Example Queries" section and update it to reflect the current composed schema.
+
+### How to generate
+
+1. Read the composed supergraph config (`config.json`) or the individual subgraph schemas to identify all root Query and Mutation fields.
+2. For each root field, write a minimal but useful example query that includes:
+   - The operation name (PascalCase matching the field name)
+   - All required arguments with variables
+   - A representative selection of return fields (not every field — pick the most useful 3-5)
+   - For federation entity joins, include the cross-subgraph fields with a comment noting which subgraph resolves them
+3. Add a variables JSON block for any query/mutation that requires input arguments.
+4. Group queries before mutations. Lead with the simplest query.
+
+### README format
+
+```markdown
+## Example Queries
+
+<description of the query>:
+
+\`\`\`graphql
+query OperationName {
+  fieldName {
+    field1
+    field2
+    field3
+  }
+}
+\`\`\`
+
+<description including federation details if applicable>:
+
+\`\`\`graphql
+query OperationName($input: InputType!) {
+  fieldName(arg: $input) {
+    field1
+    field2
+    crossSubgraphField  # resolved from <other-subgraph> plugin
+  }
+}
+\`\`\`
+
+Variables:
+\`\`\`json
+{
+  "input": { ... }
+}
+\`\`\`
+
+More examples are available in the `examples/` directory.
+```
+
+### Rules
+
+- Only include queries/mutations that exist in the composed schema — don't guess.
+- Keep each example minimal — show the shape, not every field.
+- For union return types, show both `... on SuccessType` and `... on ErrorType` fragments.
+- If an `examples/` directory exists with `.graphql` files, reference it at the end.
+- Don't duplicate the full examples directory content — pick 2-3 representative queries for the README.
 
 ## References
 
