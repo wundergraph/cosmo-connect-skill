@@ -224,6 +224,50 @@ After composing, update the README's "Example Queries" section. See [SKILL.md#ex
 | `PLUGINS_PATH` | Directory with plugin subdirs containing binaries. |
 | `CONFIG_PATH` | Router's own `config.yaml` (listen address, logging, etc.). |
 
+## Local Control Plane Plugin Deployment
+
+When publishing plugins to a local Cosmo Control Plane (`COSMO_API_URL` and `COSMO_API_KEY`):
+
+### 1. Environment Variables for Local Registry
+Set `PLUGIN_REGISTRY_URL` and `PLUGIN_REGISTRY_INSECURE` so Docker images push to the local registry container (`localhost:5050`):
+
+```bash
+export PLUGIN_REGISTRY_URL="localhost:5050"
+export PLUGIN_REGISTRY_INSECURE="true"
+
+wgc router plugin publish ./my-plugin --label team=github
+```
+
+### 2. Resolving "Organization reached the limit of plugins"
+If the local control plane rejects publishing due to plugin limits, insert a feature entry into the PostgreSQL `controlplane` database:
+
+```sql
+INSERT INTO organization_features (organization_id, feature, enabled, "limit")
+VALUES ('<organization-id>', 'plugins', true, 10)
+ON CONFLICT (organization_id, feature) DO UPDATE SET "limit" = 10, enabled = true;
+```
+
+---
+
+## Feature Subgraphs & Feature Flags Workflow
+
+To create and deploy a plugin as a **Feature Subgraph** to override base query behavior under a feature flag:
+
+### 1. Create Feature Subgraph
+```bash
+wgc feature-subgraph create <feature-subgraph-name> --subgraph <base-subgraph-name>
+```
+
+### 2. Publish Plugin to Feature Subgraph
+```bash
+wgc router plugin publish ./path-to-plugin --name <feature-subgraph-name> --label <key=value>
+```
+
+### 3. Create & Enable Feature Flag
+```bash
+wgc feature-flag create <flag-name> --feature-subgraphs <feature-subgraph-name> --label <key=value> --enabled
+```
+
 ## Proto Conventions
 
 - **Queries**: `QueryFieldName(Request) returns (Response)`
@@ -240,3 +284,7 @@ After composing, update the README's "Example Queries" section. See [SKILL.md#ex
 | Plugin not starting | Check `PLUGINS_ENABLED=true` and binary at `<PLUGINS_PATH>/<name>/bin/<os>_<arch>/plugin` |
 | "dns:/// not resolving" | Ensure gRPC server is running before starting router |
 | Proto generation fails | Install: `go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest` |
+| "The organization reached the limit of plugins" | Insert plugins feature limit into PostgreSQL `organization_features` table for the organization |
+| 401 Unauthorized during plugin publish | Set `export PLUGIN_REGISTRY_URL="localhost:5050"` and `export PLUGIN_REGISTRY_INSECURE="true"` |
+| Invalid resolver context | Field resolver context in `schema.graphql` must specify top-level scalar fields (e.g. `fullName`, `login`), not nested paths |
+
