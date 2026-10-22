@@ -156,7 +156,9 @@ type Foo {
 ```
 
 Generates a dedicated `ResolveFooBar` RPC. Batching is automatic.
-**Critical:** Return results in the exact same order as provided context elements.
+**Critical:**
+- Return results in the exact same order as provided context elements.
+- Context in `schema.graphql` must specify top-level scalar fields on parent (e.g. `fullName`, `login`), not nested paths.
 
 ## Local Router Setup (No Cloud)
 
